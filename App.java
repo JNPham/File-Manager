@@ -1,34 +1,45 @@
 package cecs277.file.manager;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 class App extends JFrame {
     JPanel panel, topPanel;
     JButton simple, details;
     JMenuBar menubar;
+    JToolBar toolbar, drivebar, statusbar;
+    Font font;
+    JComboBox driveSel;
     public App() {
         panel = new JPanel();
         topPanel = new JPanel();
         menubar = new JMenuBar();
-        simple = new JButton("Simple");
-        details = new JButton("Details");
+        toolbar = new JToolBar();
+        font = new Font("SansSerif", Font.BOLD, 15);
     }
     public void go() {
         this.setTitle("CECS 277 File Manager");
         panel.setLayout(new BorderLayout());
         topPanel.setLayout(new BorderLayout());
+        
         buildMenu();
-        //topPanel.add(details, BorderLayout.SOUTH);
-        //panel.add(simple);
-        //panel.add(topPanel, BorderLayout.NORTH);
+        topPanel.add(menubar, BorderLayout.NORTH);
+        
+        buildToolbar();
+        topPanel.add(toolbar, BorderLayout.SOUTH);
+        
+        panel.add(topPanel, BorderLayout.NORTH);
         this.add(panel);
         
         this.setSize(1000,800);
@@ -76,8 +87,6 @@ class App extends JFrame {
         helpMenu.add(help);
         helpMenu.add(about);
         menubar.add(helpMenu);
-        
-        panel.add(menubar, BorderLayout.NORTH);
     }
 
     private class AboutActionListener implements ActionListener {
@@ -93,5 +102,26 @@ class App extends JFrame {
         public void actionPerformed(ActionEvent e) {
             System.exit(0);
         }
+    }
+    
+    private void buildToolbar(){
+        simple = new JButton("Simple");
+        details = new JButton("Details");
+        
+        //add combo box for drive selection
+        driveSel = new JComboBox();
+        driveSel.setFont(font);
+        driveSel.addItem("C:\\");
+        driveSel.addItem("Other drive");
+        
+        toolbar.setLayout(new FlowLayout());
+        simple.setFont(font);
+        details.setFont(font);
+        toolbar.add(driveSel);
+        toolbar.add(simple);
+        toolbar.add(details);
+        toolbar.setFloatable(false);
+        
+        
     }
 }
