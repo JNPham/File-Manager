@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -18,14 +19,17 @@ class App extends JFrame {
     JPanel panel, topPanel;
     JButton simple, details;
     JMenuBar menubar;
-    JToolBar toolbar, drivebar, statusbar;
+    JToolBar toolbar, statusbar;
     Font font;
     JComboBox driveSel;
+    String currentDrive;
+    JLabel drive, freespace, usedspace,totalspace;
     public App() {
         panel = new JPanel();
         topPanel = new JPanel();
         menubar = new JMenuBar();
         toolbar = new JToolBar();
+        statusbar = new JToolBar();
         font = new Font("SansSerif", Font.BOLD, 15);
     }
     public void go() {
@@ -38,10 +42,13 @@ class App extends JFrame {
         
         buildToolbar();
         topPanel.add(toolbar, BorderLayout.SOUTH);
-        
         panel.add(topPanel, BorderLayout.NORTH);
-        this.add(panel);
         
+        currentDrive = "C:\\";
+        buildStatusbar();
+        panel.add(statusbar, BorderLayout.SOUTH);
+        
+        this.add(panel);
         this.setSize(1000,800);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
@@ -61,6 +68,7 @@ class App extends JFrame {
         fileMenu.add(delete);
         fileMenu.add(run);
         fileMenu.add(exit);
+        fileMenu.setFont(font);
         menubar.add(fileMenu);
         
         //tree: expand, collapse
@@ -69,6 +77,7 @@ class App extends JFrame {
         JMenuItem collapse = new JMenuItem("Collapse Branch");
         treeMenu.add(expand);
         treeMenu.add(collapse);
+        treeMenu.setFont(font);
         menubar.add(treeMenu);
         
         //Window: New, Cascade
@@ -77,6 +86,7 @@ class App extends JFrame {
         JMenuItem cascade = new JMenuItem("Cascade");
         winMenu.add(newframe);
         winMenu.add(cascade);
+        winMenu.setFont(font);
         menubar.add(winMenu);
         
         //help: help, about
@@ -86,6 +96,7 @@ class App extends JFrame {
         about.addActionListener(new AboutActionListener());
         helpMenu.add(help);
         helpMenu.add(about);
+        helpMenu.setFont(font);
         menubar.add(helpMenu);
     }
 
@@ -105,23 +116,39 @@ class App extends JFrame {
     }
     
     private void buildToolbar(){
-        simple = new JButton("Simple");
-        details = new JButton("Details");
+        JPanel toolPanel = new JPanel();
+        toolPanel.setLayout(new FlowLayout());
+        simple = new JButton("Simple"); //add action 
+        details = new JButton("Details"); //add action
         
         //add combo box for drive selection
         driveSel = new JComboBox();
         driveSel.setFont(font);
         driveSel.addItem("C:\\");
-        driveSel.addItem("Other drive");
+        driveSel.addItem("Other drive"); //add action
         
-        toolbar.setLayout(new FlowLayout());
         simple.setFont(font);
         details.setFont(font);
-        toolbar.add(driveSel);
-        toolbar.add(simple);
-        toolbar.add(details);
+        toolPanel.add(driveSel);
+        toolPanel.add(simple);
+        toolPanel.add(details);
+        toolbar.add(toolPanel);
         toolbar.setFloatable(false);
         
         
+    }
+    
+    private void buildStatusbar() {
+        drive = new JLabel("Current Drive: " + currentDrive);
+        freespace = new JLabel("        Free Space: " + "......" + "GB");
+        usedspace = new JLabel("        Used Space: " + "......" + "GB");
+        totalspace = new JLabel("       Total Space: " + "......" + "GB");
+        //Note: replace "......." with file space
+        
+        statusbar.add(drive);
+        statusbar.add(freespace);
+        statusbar.add(usedspace);
+        statusbar.add(totalspace);
+        statusbar.setFloatable(false);
     }
 }
