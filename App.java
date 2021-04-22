@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -20,6 +21,8 @@ class App extends JFrame {
     JButton simple, details;
     JMenuBar menubar;
     JToolBar toolbar, statusbar;
+    JDesktopPane desktop;
+    FileFrame ff;
     Font font;
     JComboBox driveSel;
     String currentDrive;
@@ -30,6 +33,7 @@ class App extends JFrame {
         menubar = new JMenuBar();
         toolbar = new JToolBar();
         statusbar = new JToolBar();
+        desktop = new JDesktopPane();
         font = new Font("SansSerif", Font.BOLD, 15);
     }
     public void go() {
@@ -47,6 +51,12 @@ class App extends JFrame {
         currentDrive = "C:\\";
         buildStatusbar();
         panel.add(statusbar, BorderLayout.SOUTH);
+        
+        //need modified to multiple frame
+        panel.add(desktop, BorderLayout.CENTER);
+        ff = new FileFrame();
+        desktop.add(ff);
+        
         
         this.add(panel);
         this.setSize(1000,800);
