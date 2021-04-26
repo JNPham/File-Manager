@@ -26,7 +26,7 @@ public class FilePanel extends JPanel{
     
     public FilePanel(){
         add(scrollpane);
-        dirTree.setPreferredSize(new Dimension(300,size + 100));
+        dirTree.setPreferredSize(new Dimension(500,size + 100));
         scrollpane.setViewportView(dirTree);
         scrollpane.setPreferredSize(new Dimension(480,size));
         add(scrollpane);
