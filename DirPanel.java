@@ -19,7 +19,6 @@ public class DirPanel extends JPanel{
     public int width = 295;
     File[] files, newfiles;
     File rootFile;
-    Stack subFiles = new Stack();
     
     //FileFrame myFrame;
     FilePanel filePanel;
@@ -37,6 +36,7 @@ public class DirPanel extends JPanel{
     }
     
     public DirPanel() {
+        dirTree.setCellRenderer(new MyTreeCellRenderer());
         dirTree.addTreeSelectionListener(new dirTreeSelectionListener());
         buildTree();
         dirTree.setScrollsOnExpand(true);
@@ -52,36 +52,43 @@ public class DirPanel extends JPanel{
         MyFileNode node = new MyFileNode(rootFile.getPath(), rootFile);
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(node);
         treeModel = new DefaultTreeModel(root);
-        
-        files = rootFile.listFiles();
-        for (int i=0; i< files.length; i++){
-            if (!files[i].isHidden() && files[i].isDirectory()) {
-                MyFileNode mySubNode = new MyFileNode(files[i].getPath(), files[i]);
-                DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(mySubNode);
-                root.add(subNode);
-                subFiles.push(files[i].getAbsoluteFile());
-                while (subFiles.empty() == false) {
-                    readDir((File)subFiles.pop(), subNode);
-                }   
-            }
-        }
-        
+        readDir2(rootFile, root);
         dirTree.setModel(treeModel);
     }
     
     private void readDir(File f, DefaultMutableTreeNode sn) {
-        File file = f;
-        if (file.listFiles() != null) {
-            newfiles = file.listFiles();
+        if (f.listFiles() != null) {
+            newfiles = f.listFiles();
             for (int i=0; i< newfiles.length; i++){
                 if (!newfiles[i].isHidden() && newfiles[i].isDirectory()) {
-                    MyFileNode myTemp = new MyFileNode(newfiles[i].getPath(), newfiles[i]);
+                    MyFileNode myTemp = new MyFileNode(newfiles[i].getName(), newfiles[i]);
                     DefaultMutableTreeNode temp = new DefaultMutableTreeNode(myTemp);
-                    sn.add(temp);
+                    sn.add(temp);   
                 }
             }
         }
     } 
+    private void readDir2(File f, DefaultMutableTreeNode n) {
+        DefaultMutableTreeNode temp = null;
+        if (f.listFiles() != null) {
+            files = f.listFiles();
+            for (int i=0; i< files.length; i++){
+                if (!files[i].isHidden() && files[i].isDirectory()) {
+                    MyFileNode mySubNode = new MyFileNode(files[i].getName(), files[i]);
+                    temp = new DefaultMutableTreeNode(mySubNode);
+                    readDir(files[i], temp);
+                    n.add(temp);
+                }
+            }
+        }
+    }
+    
+    private void updateTree(DefaultMutableTreeNode node) {
+        System.out.println("Child count: " + node.getChildCount());
+        node.removeAllChildren();
+        MyFileNode nodeContent = (MyFileNode) node.getUserObject();
+        readDir2(nodeContent.getFile(), node);
+    }
     
     public class dirTreeSelectionListener implements TreeSelectionListener {
         @Override
@@ -89,9 +96,8 @@ public class DirPanel extends JPanel{
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) dirTree.getLastSelectedPathComponent();
             if (node == null)
                 return;
-            MyFileNode nodeContent = (MyFileNode) node.getUserObject();
-            readDir(nodeContent.getFile(), node);
             System.out.println(dirTree.getMinSelectionRow());
+            updateTree(node);
             //updateFilePanel();
         }
     }
