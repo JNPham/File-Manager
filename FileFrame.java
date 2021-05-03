@@ -13,7 +13,7 @@ public class FileFrame extends JInternalFrame {
         dirpanel.setMinimumSize(miniD);
         filepanel.setMinimumSize(miniD);
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, dirpanel, filepanel);
-        splitpane.setDividerLocation(300);
+        splitpane.setDividerLocation(250);
         splitpane.setResizeWeight(0.3);
         this.setTitle("C:");
         
