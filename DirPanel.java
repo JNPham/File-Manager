@@ -1,15 +1,27 @@
 package cecs277.file.manager;
 
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Stack;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
+import javax.swing.*;  
+import java.awt.event.*;  
+import java.awt.*;
+import java.awt.event.*; 
+import javax.swing.*;
+import javax.swing.tree.*;
+
+import cecs277.PopupMenu.TreePopup;
 
 public class DirPanel extends JPanel{
     private JScrollPane scrollpane = new JScrollPane();
@@ -37,7 +49,7 @@ public class DirPanel extends JPanel{
     
     public DirPanel() {
         dirTree.setCellRenderer(new MyTreeCellRenderer());
-        dirTree.addTreeSelectionListener(new dirTreeSelectionListener());
+        //dirTree.addTreeSelectionListener(new dirTreeSelectionListener());   COMMENTED LINE
         buildTree();
         dirTree.setScrollsOnExpand(true);
         dirTree.setVisibleRowCount(100);
@@ -64,6 +76,21 @@ public class DirPanel extends JPanel{
                     MyFileNode myTemp = new MyFileNode(newfiles[i].getName(), newfiles[i]);
                     DefaultMutableTreeNode temp = new DefaultMutableTreeNode(myTemp);
                     sn.add(temp);   
+                    
+                    JTree tree = new JTree(temp);
+                    final TreePopup treePopup = new TreePopup(tree);
+                    tree.addMouseListener(new MouseAdapter() {
+                       public void mouseReleased(MouseEvent e) {
+                          if(e.isPopupTrigger()) {
+                             treePopup.show(e.getComponent(), e.getX(), e.getY());
+                          }
+                       }
+                    });
+                    add(new JScrollPane(tree));         //FIX 
+                 
+                    setSize(400, 300);
+                  
+                    setVisible(true);
                 }
             }
         }
@@ -78,10 +105,30 @@ public class DirPanel extends JPanel{
                     temp = new DefaultMutableTreeNode(mySubNode);
                     readDir(files[i], temp);
                     n.add(temp);
+                    
+                  
                 }
             }
         }
     }
+    
+    class TreePopup extends JPopupMenu {
+    	   public TreePopup(JTree tree) {
+    		   JMenuItem rename = new JMenuItem("Rename");
+    		   JMenuItem copy = new JMenuItem("Copy");
+    		   JMenuItem paste = new JMenuItem("Paste");
+    	      JMenuItem delete = new JMenuItem("Delete");
+    	      
+    	
+    	      add(rename);
+    	      add(new JSeparator());
+    	      add(copy);
+    	      add(new JSeparator());
+    	      add(paste);
+    	      add(new JSeparator());
+    	      add(delete);
+    	   }
+    	   
     
     private void updateTree(DefaultMutableTreeNode node) {
         System.out.println("Child count: " + node.getChildCount());
@@ -101,4 +148,6 @@ public class DirPanel extends JPanel{
             //updateFilePanel();
         }
     }
-}
+    }}
+
+    	     
