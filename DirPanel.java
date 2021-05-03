@@ -21,8 +21,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-import cecs277.PopupMenu.TreePopup;
-
 public class DirPanel extends JPanel{
     private JScrollPane scrollpane = new JScrollPane();
     private JTree dirTree = new JTree();
