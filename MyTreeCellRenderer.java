@@ -16,7 +16,7 @@ public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
                 if (node.getUserObject() instanceof MyFileNode) {
                 MyFileNode n = (MyFileNode)  node.getUserObject();
-                    if (n.isDir()) {
+                    if (n.isDirectory()) {
                         setIcon(UIManager.getIcon("FileView.directoryIcon"));
                     } else {
                         setIcon(UIManager.getIcon("FileView.fileIcon"));
