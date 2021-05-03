@@ -18,8 +18,9 @@ public class ListCellRenderer extends DefaultListCellRenderer{
 
         Component c = super.getListCellRendererComponent(list, value, index, selected, expanded);
 
-        File file = (File) value;
-        if (file instanceof File) {
+        String str = (String) value;
+        if (str instanceof String) {
+            File file = new File(str);
             if (file.isDirectory()) {
                 setIcon(UIManager.getIcon("FileView.directoryIcon"));
             }
