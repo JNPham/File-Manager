@@ -6,11 +6,14 @@ import javax.swing.JSplitPane;
 
 public class FileFrame extends JInternalFrame {
     JSplitPane splitpane;
+    private String title;
     DirPanel dirpanel = new DirPanel();
     FilePanel filepanel = new FilePanel();
     Dimension miniD = new Dimension(250,460);
     public FileFrame() {
         dirpanel.setMinimumSize(miniD);
+        dirpanel.setFilePanel(filepanel);
+        dirpanel.setFileFrame(this);
         filepanel.setMinimumSize(miniD);
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, dirpanel, filepanel);
         splitpane.setDividerLocation(250);
@@ -24,5 +27,9 @@ public class FileFrame extends JInternalFrame {
         this.setResizable(true);
         this.setSize(700, 500);
         this.setVisible(true);
+        this.moveToFront();
+        this.toFront();
+        this.requestFocusInWindow(true);
+        pack();
     }
 }
