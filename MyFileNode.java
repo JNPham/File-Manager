@@ -9,7 +9,7 @@ public class MyFileNode {
     public MyFileNode(String filename) {
         file = new File(filename);
     }
-    
+   
     public MyFileNode(String name, File f){
         filename = name;
         file = f;
@@ -17,6 +17,12 @@ public class MyFileNode {
     
     public File getFile(){
         return file;
+    }
+    
+    public boolean hasChildren() {
+        if (file.listFiles() != null)
+            return true;
+        return false;
     }
     
     public String toString() {
