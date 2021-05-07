@@ -1,25 +1,16 @@
 package cecs277.file.manager;
 
 import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Stack;
+import javax.swing.GroupLayout;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
-import javax.swing.*;  
-import java.awt.event.*;  
-import java.awt.*;
-import java.awt.event.*; 
-import javax.swing.*;
-import javax.swing.tree.*;
 
 public class DirPanel extends JPanel{
     private JScrollPane scrollpane = new JScrollPane();
@@ -30,31 +21,46 @@ public class DirPanel extends JPanel{
     File[] files, newfiles;
     File rootFile;
     
-    //FileFrame myFrame;
+    FileFrame myFrame;
     FilePanel filePanel;
+    
     public void setRootFile(String rf) {
         rootFile = new File(rf);
     }
-    public String getRootFile() {
-        return rootFile.getPath();
+//    public String getRootFile() {
+//        return rootFile.getPath();
+//    }
+    public void setTree() {
+        buildTree();
     }
+    
     public void setFilePanel(FilePanel fp) {
         filePanel = fp;
     }
     public JTree getDirTree() {
         return dirTree;
     }
+    public void setFileFrame(FileFrame ff) {
+        myFrame = ff;
+    }
     
     public DirPanel() {
         dirTree.setCellRenderer(new MyTreeCellRenderer());
-        //dirTree.addTreeSelectionListener(new dirTreeSelectionListener());   COMMENTED LINE
+        dirTree.addTreeSelectionListener(new dirTreeSelectionListener());
         buildTree();
         dirTree.setScrollsOnExpand(true);
         dirTree.setVisibleRowCount(100);
         scrollpane.setViewportView(dirTree);
-        scrollpane.setPreferredSize(new Dimension(width,height));
+        GroupLayout layout = new GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(scrollpane, GroupLayout.DEFAULT_SIZE, width, Short.MAX_VALUE));
+        layout.setVerticalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(scrollpane, GroupLayout.DEFAULT_SIZE, height, Short.MAX_VALUE));
+        
         add(scrollpane);
-        this.setPreferredSize(new Dimension(width,height));
     }
     
     private void buildTree() {
@@ -74,21 +80,6 @@ public class DirPanel extends JPanel{
                     MyFileNode myTemp = new MyFileNode(newfiles[i].getName(), newfiles[i]);
                     DefaultMutableTreeNode temp = new DefaultMutableTreeNode(myTemp);
                     sn.add(temp);   
-                    
-                    JTree tree = new JTree(temp);
-                    final TreePopup treePopup = new TreePopup(tree);
-                    tree.addMouseListener(new MouseAdapter() {
-                       public void mouseReleased(MouseEvent e) {
-                          if(e.isPopupTrigger()) {
-                             treePopup.show(e.getComponent(), e.getX(), e.getY());
-                          }
-                       }
-                    });
-                    add(new JScrollPane(tree));         //FIX 
-                 
-                    setSize(400, 300);
-                  
-                    setVisible(true);
                 }
             }
         }
@@ -103,49 +94,35 @@ public class DirPanel extends JPanel{
                     temp = new DefaultMutableTreeNode(mySubNode);
                     readDir(files[i], temp);
                     n.add(temp);
-                    
-                  
                 }
             }
         }
     }
     
-    class TreePopup extends JPopupMenu {
-    	   public TreePopup(JTree tree) {
-    		   JMenuItem rename = new JMenuItem("Rename");
-    		   JMenuItem copy = new JMenuItem("Copy");
-    		   JMenuItem paste = new JMenuItem("Paste");
-    	      JMenuItem delete = new JMenuItem("Delete");
-    	      
-    	
-    	      add(rename);
-    	      add(new JSeparator());
-    	      add(copy);
-    	      add(new JSeparator());
-    	      add(paste);
-    	      add(new JSeparator());
-    	      add(delete);
-    	   }
-    	   
-    
-    private void updateTree(DefaultMutableTreeNode node) {
+    private void updateTree(MyFileNode nodeContent, DefaultMutableTreeNode node) {
         System.out.println("Child count: " + node.getChildCount());
         node.removeAllChildren();
-        MyFileNode nodeContent = (MyFileNode) node.getUserObject();
         readDir2(nodeContent.getFile(), node);
     }
+    
+    public void updateTitle() {
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode) dirTree.getLastSelectedPathComponent();
+        MyFileNode nodeContent = (MyFileNode) n.getUserObject();
+        myFrame.setTitle(nodeContent.getFile().toString());
+    }
+    
     
     public class dirTreeSelectionListener implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) dirTree.getLastSelectedPathComponent();
+            updateTitle();
             if (node == null)
                 return;
-            System.out.println(dirTree.getMinSelectionRow());
-            updateTree(node);
-            //updateFilePanel();
+            MyFileNode nodeContent = (MyFileNode) node.getUserObject();
+            updateTree(nodeContent, node);
+            filePanel.setCurrentDir(nodeContent.getFile().toString());
+            filePanel.fillList(nodeContent.getFile());
         }
     }
-    }}
-
-    	     
+}
