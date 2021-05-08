@@ -121,7 +121,7 @@ public class DirPanel extends JPanel{
                 return;
             MyFileNode nodeContent = (MyFileNode) node.getUserObject();
             updateTree(nodeContent, node);
-            filePanel.setCurrentDir(nodeContent.getFile().toString());
+            filePanel.setCurrentDir(nodeContent.getFile());
             filePanel.fillList(nodeContent.getFile());
         }
     }
