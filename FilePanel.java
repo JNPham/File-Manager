@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,10 @@ import java.util.logging.Logger;
 
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -33,7 +36,7 @@ import javax.swing.JSeparator;
 import javax.swing.tree.DefaultTreeModel;
 
 public class FilePanel extends JPanel{
-    String currentDir;
+    File currentDir;
     File curFile;
     Desktop desktop = Desktop.getDesktop();
     JList list = new JList();
@@ -41,6 +44,16 @@ public class FilePanel extends JPanel{
     FilePopup popup = new FilePopup();
     private JScrollPane scrollpane = new JScrollPane();
     public int size=460;
+    
+    public JList getList() {
+        return list;
+    }
+    public File getCurDir() {
+        return currentDir;
+    }
+    public File getcurFile() {
+        return curFile;
+    }
     
     public FilePanel(){
         list.setCellRenderer(new ListCellRenderer());
@@ -54,6 +67,7 @@ public class FilePanel extends JPanel{
             public void mouseClicked(MouseEvent e) {
                 File f;
                 if (list.getSelectedValue() != null) {
+                    curFile = new File((String)list.getSelectedValue()) ;
                     f = new File((String)list.getSelectedValue());
                     if (f.isFile())
                     if(e.getClickCount()==2 && e.getButton() == MouseEvent.BUTTON1){
@@ -103,9 +117,9 @@ public class FilePanel extends JPanel{
             model.clear();
     }
     
-    public void setCurrentDir(String s) {
-        currentDir = s;
-        System.out.println("Current Dir: " + currentDir);
+    public void setCurrentDir(File f) {
+        currentDir = f;
+        System.out.println("Current Dir: " + currentDir.toString());
     }
 
     public void check(MouseEvent e) {
@@ -121,9 +135,9 @@ public class FilePanel extends JPanel{
         public void actionPerformed(ActionEvent ae) {
             Dialog2Way rename = new Dialog2Way(null, true);
             rename.setTitle("Rename");
-            rename.setCurrentDir(currentDir);
+            rename.setCurrentDir(currentDir.toString());
             rename.setFromField(curFile.getName());
-            rename.setVisible(true);
+            rename.setVisible(true);  
             String toField = rename.getToField(); 
             System.out.println("Change name to: " + toField);
             Path source = Paths.get(curFile.getAbsolutePath());
@@ -132,7 +146,7 @@ public class FilePanel extends JPanel{
             } catch (IOException ex) {
                 System.out.println("Fail to rename");
             }
-            
+            fillList(currentDir);
         }
     }
 
@@ -141,18 +155,39 @@ public class FilePanel extends JPanel{
         public void actionPerformed(ActionEvent ae) {
             Dialog2Way copy = new Dialog2Way(null, true);
             copy.setTitle("Copying");
-            copy.setCurrentDir(currentDir);
+            copy.setCurrentDir(currentDir.toString());
             copy.setFromField(curFile.getName());
             copy.setVisible(true);
             String toField = copy.getToField();
-            
+            Path source = Paths.get(curFile.getAbsolutePath());
+            Path newDir = Paths.get(toField);
+            try {
+                Files.copy(source, newDir);
+            } catch (IOException ex) {
+                System.out.println("Unsuccessful Copying");
+            }
+            fillList(currentDir);
         }
     }
 
     public class DeleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            JFrame f = new JFrame();
+            f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            JOptionPane op = new JOptionPane();
+            String str = "Delete " + curFile.getAbsolutePath();
+            int a = JOptionPane.showConfirmDialog(f, str, "Deleting!!!", JOptionPane.YES_NO_OPTION);
+            if (a == JOptionPane.YES_OPTION) {
+                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                System.out.println("Delete sucessfully");
+            try {
+                Files.delete(Paths.get(curFile.getAbsolutePath()));
+            } catch (IOException ex) {
+                System.out.println("Delete Unsucessfully");
+            }
+            fillList(currentDir);
+            }
         }
     }
     
