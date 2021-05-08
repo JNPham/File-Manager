@@ -1,20 +1,28 @@
 package cecs277.file.manager;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -75,6 +83,10 @@ class App extends JFrame {
         JMenuItem run = new JMenuItem("Run");
         JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(new ExitActionListener());
+        rename.addActionListener(new RenameActionListener());
+        copy.addActionListener(new CopyActionListener());
+        delete.addActionListener(new DeleteActionListener());
+        run.addActionListener(new RunActionListener());
         fileMenu.add(rename);
         fileMenu.add(copy);
         fileMenu.add(delete);
@@ -115,7 +127,7 @@ class App extends JFrame {
         menubar.add(helpMenu);
     }
 
-    private static class ExpandCollapseListener implements ActionListener {
+    private class ExpandCollapseListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             FileFrame selectedFrame = (FileFrame) desktop.getSelectedFrame();
@@ -127,6 +139,112 @@ class App extends JFrame {
                 tree.expandRow(row);
             if (e.getActionCommand().equals("Collapse Branch") && tree.isExpanded(row))
                 tree.collapseRow(row);
+        }
+    }
+
+    private class RenameActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            FileFrame selectedFrame = (FileFrame) desktop.getSelectedFrame();
+            if (selectedFrame == null)
+                return;
+            File currentDir = selectedFrame.filepanel.currentDir;
+            File curFile = selectedFrame.filepanel.curFile;
+            Dialog2Way rename = new Dialog2Way(null, true);
+            rename.setTitle("Rename");
+            System.out.println("currentDir.toString(): " + currentDir.toString());
+            System.out.println("curFile.getName(): " + curFile.getName());
+            rename.setCurrentDir(currentDir.toString());
+            rename.setFromField(curFile.getName());
+            rename.setVisible(true);  
+            String toField = rename.getToField(); 
+            System.out.println("Change name to: " + toField);
+            Path source = Paths.get(curFile.getAbsolutePath());
+            try {
+                Files.move(source, source.resolveSibling(toField));
+            } catch (IOException ex) {
+                System.out.println("Fail to rename");
+            }
+            selectedFrame.filepanel.fillList(currentDir);
+        }
+    }
+
+    private class CopyActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            FileFrame selectedFrame = (FileFrame) desktop.getSelectedFrame();
+            if (selectedFrame == null)
+                return;
+            File currentDir = selectedFrame.filepanel.currentDir;
+            File curFile = selectedFrame.filepanel.curFile;
+            Dialog2Way copy = new Dialog2Way(null, true);
+            copy.setTitle("Copying");
+            copy.setCurrentDir(currentDir.toString());
+            copy.setFromField(curFile.getName());
+            copy.setVisible(true);
+            String toField = copy.getToField();
+            Path source = Paths.get(curFile.getAbsolutePath());
+            Path newDir = Paths.get(toField);
+            try {
+                Files.createDirectories(newDir);
+            } catch (IOException ex) {
+                System.out.println("New Directory does not exist");
+            }
+            try {
+                Files.copy(source, newDir.resolve(source.getFileName())
+                        ,StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ex) {
+                System.out.println("Unsuccessful Copying");
+            }
+            selectedFrame.filepanel.fillList(currentDir);
+        }
+    }
+
+    private class DeleteActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            FileFrame selectedFrame = (FileFrame) desktop.getSelectedFrame();
+            if (selectedFrame == null)
+                return;
+            JFrame f = new JFrame();
+            File currentDir = selectedFrame.filepanel.currentDir;
+            File curFile = selectedFrame.filepanel.curFile;
+            f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            JOptionPane op = new JOptionPane();
+            String str = "Delete " + curFile.getAbsolutePath();
+            int a = JOptionPane.showConfirmDialog(f, str, "Deleting!!!", JOptionPane.YES_NO_OPTION);
+            if (a == JOptionPane.YES_OPTION) {
+                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                System.out.println("Delete sucessfully");
+                try {
+                    Files.delete(Paths.get(curFile.getAbsolutePath()));
+                } catch (IOException ex) {
+                    System.out.println("Delete Unsucessfully");
+                }
+            }
+            selectedFrame.filepanel.fillList(currentDir);
+        }
+    }
+
+    private class RunActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            Desktop desktop1 = Desktop.getDesktop();
+            FileFrame selectedFrame = (FileFrame) desktop.getSelectedFrame();
+            if (selectedFrame == null)
+                return;
+            JList list = selectedFrame.filepanel.getList();
+            File f;
+            if (list.getSelectedValue() != null) {
+                f = new File((String)list.getSelectedValue());
+                if (f.isFile())
+                try {
+                    desktop1.open(new File((String)list.getSelectedValue()));
+                } catch (IOException ex) {
+                    System.out.println(ex.toString());
+                }
+            }
+
         }
     }
 
