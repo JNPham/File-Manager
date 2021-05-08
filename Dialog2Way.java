@@ -132,7 +132,8 @@ public class Dialog2Way extends javax.swing.JDialog {
     }                                  
 
     private void CancelActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        this.setVisible(false);
+
+        this.dispose();
     }                                      
 
     /**
