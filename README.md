@@ -1,4 +1,4 @@
-To run the app: Open CECS277_File_Manager.zip
+To run the app: Open Run_File_Manager.zip
 
 Things needed to do:
 1. Scaling the splitpane on 1st creation
